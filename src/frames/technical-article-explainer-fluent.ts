@@ -9,14 +9,22 @@ import {
 } from "../frame/frame-helpers.js";
 import { expandFrameInstance } from "../frame/expand-frame.js";
 import { technicalArticleExplainerFrameDefinition } from "./technical-article-explainer.js";
-import type { FrameAuthoringState, FrameCompileResult, FrameDeviation, FrameInstance } from "../types/frame.js";
+import type {
+  FrameAuthoringState,
+  FrameCompileResult,
+  FrameDeviation,
+  FrameInstance,
+  ParagraphProseFill,
+  SemanticFill,
+} from "../types/frame.js";
 import type { SemanticDocumentGraph } from "../types/domain.js";
 
 export function technicalArticleExplainerFrame(title: string): TechnicalArticleExplainerAuthor {
   return new TechnicalArticleExplainerAuthor({
     frameId: technicalArticleExplainerFrameDefinition.frameId,
     title,
-    fills: {},
+    semanticFills: {},
+    proseFills: {},
     deviations: [],
     idOverrides: {},
   });
@@ -29,24 +37,46 @@ export class TechnicalArticleExplainerAuthor {
     this.authoringState = authoringState;
   }
 
-  fill(slotFills: Record<string, string>): TechnicalArticleExplainerAuthor {
+  fillSemantic(
+    paragraphId: string,
+    semanticFill: SemanticFill,
+  ): TechnicalArticleExplainerAuthor {
     return new TechnicalArticleExplainerAuthor({
       ...this.authoringState,
-      fills: {
-        ...this.authoringState.fills,
-        ...slotFills,
+      semanticFills: {
+        ...this.authoringState.semanticFills,
+        [paragraphId]: {
+          ...(this.authoringState.semanticFills[paragraphId] ?? {}),
+          ...semanticFill,
+        },
       },
     });
   }
 
-  deviate(slotId: string, reason: string): TechnicalArticleExplainerAuthor {
+  fillProse(
+    paragraphId: string,
+    proseFill: ParagraphProseFill,
+  ): TechnicalArticleExplainerAuthor {
+    return new TechnicalArticleExplainerAuthor({
+      ...this.authoringState,
+      proseFills: {
+        ...this.authoringState.proseFills,
+        [paragraphId]: {
+          ...(this.authoringState.proseFills[paragraphId] ?? {}),
+          ...proseFill,
+        },
+      },
+    });
+  }
+
+  deviate(paragraphId: string, reason: string): TechnicalArticleExplainerAuthor {
     const filteredDeviations = this.authoringState.deviations.filter(
-      (deviation) => deviation.slotId !== slotId,
+      (deviation) => deviation.paragraphId !== paragraphId,
     );
 
     return new TechnicalArticleExplainerAuthor({
       ...this.authoringState,
-      deviations: [...filteredDeviations, { slotId, reason }],
+      deviations: [...filteredDeviations, { paragraphId, reason }],
     });
   }
 
@@ -54,7 +84,7 @@ export class TechnicalArticleExplainerAuthor {
     let author: TechnicalArticleExplainerAuthor = this;
 
     for (const deviation of deviations) {
-      author = author.deviate(deviation.slotId, deviation.reason);
+      author = author.deviate(deviation.paragraphId, deviation.reason);
     }
 
     return author;
@@ -64,7 +94,8 @@ export class TechnicalArticleExplainerAuthor {
     return {
       frameId: this.authoringState.frameId,
       title: this.authoringState.title,
-      fills: this.authoringState.fills,
+      semanticFills: this.authoringState.semanticFills,
+      proseFills: this.authoringState.proseFills,
       deviations: this.authoringState.deviations,
       idOverrides: this.authoringState.idOverrides,
     };
@@ -105,8 +136,19 @@ export class TechnicalArticleExplainerAuthor {
 
 export function createTechnicalArticleExplainerInstance(
   title: string,
-  slotFills: Record<string, string>,
+  semanticFills: FrameInstance["semanticFills"],
+  proseFills: FrameInstance["proseFills"] = {},
   deviations: FrameDeviation[] = [],
 ): FrameInstance {
-  return technicalArticleExplainerFrame(title).fill(slotFills).deviateFromMany(deviations).toFrameInstance();
+  let author = technicalArticleExplainerFrame(title);
+
+  for (const [paragraphId, semanticFill] of Object.entries(semanticFills)) {
+    author = author.fillSemantic(paragraphId, semanticFill);
+  }
+
+  for (const [paragraphId, proseFill] of Object.entries(proseFills)) {
+    author = author.fillProse(paragraphId, proseFill);
+  }
+
+  return author.deviateFromMany(deviations).toFrameInstance();
 }

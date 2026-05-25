@@ -32,106 +32,282 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
       role: "summary",
     },
   ],
-  slots: [
+  paragraphPatterns: [
     {
-      slotId: "problem",
-      role: "problem",
+      paragraphId: "introductionProblem",
       sectionId: "introduction",
       requirement: "required",
+      paragraphRole: "problem",
+      semanticFields: [
+        { fieldId: "domain", valueKind: "text", requirement: "required" },
+        { fieldId: "pain", valueKind: "text", requirement: "required" },
+      ],
+      sentences: [
+        {
+          sentenceId: "problemStatement",
+          role: "problem",
+          requiredSemanticFieldIds: ["domain", "pain"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "goal",
-      role: "goal",
+      paragraphId: "introductionGoal",
       sectionId: "introduction",
       requirement: "required",
+      paragraphRole: "goal",
+      semanticFields: [
+        { fieldId: "solution", valueKind: "text", requirement: "required" },
+        { fieldId: "outcome", valueKind: "text", requirement: "required" },
+      ],
+      sentences: [
+        {
+          sentenceId: "goalStatement",
+          role: "goal",
+          requiredSemanticFieldIds: ["solution", "outcome"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "workflow",
-      role: "background",
+      paragraphId: "workflowBackground",
       sectionId: "workflow",
       requirement: "required",
+      paragraphRole: "background",
+      semanticFields: [
+        { fieldId: "approach", valueKind: "text", requirement: "required" },
+      ],
+      sentences: [
+        {
+          sentenceId: "workflowStatement",
+          role: "background",
+          requiredSemanticFieldIds: ["approach"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "designDecision",
-      role: "design_decision",
+      paragraphId: "workflowDesignDecision",
       sectionId: "workflow",
       requirement: "required",
-      defaultText: "Build the graph before writing full prose.",
+      paragraphRole: "design_decision",
+      semanticFields: [
+        {
+          fieldId: "decision",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: { kind: "text", value: "Build the graph before writing full prose." },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "designDecisionStatement",
+          role: "design_decision",
+          requiredSemanticFieldIds: ["decision"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "workflowConstraint",
-      role: "constraint",
+      paragraphId: "workflowConstraint",
       sectionId: "workflow",
       requirement: "required",
-      defaultText:
-        "Structural compile accepts empty sentence text when roles and links are valid.",
+      paragraphRole: "constraint",
+      semanticFields: [
+        {
+          fieldId: "constraint",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value:
+              "Structural compile accepts empty sentence text when roles and links are valid.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "constraintStatement",
+          role: "constraint",
+          requiredSemanticFieldIds: ["constraint"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "example",
-      role: "example",
+      paragraphId: "workflowExample",
       sectionId: "workflow",
       requirement: "required",
-      multiSentence: true,
+      paragraphRole: "example",
+      semanticFields: [
+        { fieldId: "stepOne", valueKind: "text", requirement: "required" },
+        { fieldId: "stepTwo", valueKind: "text", requirement: "required" },
+        { fieldId: "stepThree", valueKind: "text", requirement: "required" },
+      ],
+      sentences: [
+        {
+          sentenceId: "exampleStepOne",
+          role: "example",
+          requiredSemanticFieldIds: ["stepOne"],
+          proseRequirement: "required",
+        },
+        {
+          sentenceId: "exampleStepTwo",
+          role: "example",
+          requiredSemanticFieldIds: ["stepTwo"],
+          proseRequirement: "required",
+        },
+        {
+          sentenceId: "exampleStepThree",
+          role: "example",
+          requiredSemanticFieldIds: ["stepThree"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "claim",
-      role: "claim",
+      paragraphId: "compileModesClaim",
       sectionId: "compileModes",
       requirement: "required",
-      defaultText: "Two compile modes separate structure validation from render readiness.",
+      paragraphRole: "claim",
+      semanticFields: [
+        {
+          fieldId: "claim",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value: "Two compile modes separate structure validation from render readiness.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "claimStatement",
+          role: "claim",
+          requiredSemanticFieldIds: ["claim"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "reasonStructural",
-      role: "reason",
+      paragraphId: "compileModesReasonStructural",
       sectionId: "compileModes",
       requirement: "required",
-      defaultText:
-        "compileStructural checks ids, nesting, roles, links, and schema constraints while text may still be empty.",
+      paragraphRole: "reason",
+      semanticFields: [
+        {
+          fieldId: "reason",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value:
+              "compileStructural checks ids, nesting, roles, links, and schema constraints while text may still be empty.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "reasonStructuralStatement",
+          role: "reason",
+          requiredSemanticFieldIds: ["reason"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "reasonRenderable",
-      role: "reason",
+      paragraphId: "compileModesReasonRenderable",
       sectionId: "compileModes",
       requirement: "required",
-      defaultText:
-        "compileRenderable adds required-text checks so the graph can be output as Markdown.",
+      paragraphRole: "reason",
+      semanticFields: [
+        {
+          fieldId: "reason",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value:
+              "compileRenderable adds required-text checks so the graph can be output as Markdown.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "reasonRenderableStatement",
+          role: "reason",
+          requiredSemanticFieldIds: ["reason"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "summary",
-      role: "summary",
+      paragraphId: "summarySummary",
       sectionId: "summary",
       requirement: "required",
+      paragraphRole: "summary",
+      semanticFields: [
+        { fieldId: "takeaway", valueKind: "text", requirement: "required" },
+      ],
+      sentences: [
+        {
+          sentenceId: "summaryStatement",
+          role: "summary",
+          requiredSemanticFieldIds: ["takeaway"],
+          proseRequirement: "required",
+        },
+      ],
     },
     {
-      slotId: "limitations",
-      role: "limitation",
+      paragraphId: "summaryLimitations",
       sectionId: "summary",
       requirement: "recommended",
+      paragraphRole: "limitation",
+      semanticFields: [
+        { fieldId: "limitation", valueKind: "text", requirement: "optional" },
+      ],
+      sentences: [
+        {
+          sentenceId: "limitationStatement",
+          role: "limitation",
+          requiredSemanticFieldIds: ["limitation"],
+          proseRequirement: "optional",
+        },
+      ],
     },
   ],
   linkTemplates: [
     {
-      sourceSlotId: "designDecision",
+      sourceParagraphId: "workflowDesignDecision",
+      sourceSentenceId: "designDecisionStatement",
       linkType: "depends_on",
-      targetSlotId: "workflowConstraint",
+      targetParagraphId: "workflowConstraint",
+      targetSentenceId: "constraintStatement",
     },
     {
-      sourceSlotId: "reasonStructural",
+      sourceParagraphId: "compileModesReasonStructural",
+      sourceSentenceId: "reasonStructuralStatement",
       linkType: "supports",
-      targetSlotId: "claim",
+      targetParagraphId: "compileModesClaim",
+      targetSentenceId: "claimStatement",
     },
     {
-      sourceSlotId: "reasonRenderable",
+      sourceParagraphId: "compileModesReasonRenderable",
+      sourceSentenceId: "reasonRenderableStatement",
       linkType: "supports",
-      targetSlotId: "claim",
+      targetParagraphId: "compileModesClaim",
+      targetSentenceId: "claimStatement",
     },
     {
-      sourceSlotId: "summary",
+      sourceParagraphId: "summarySummary",
+      sourceSentenceId: "summaryStatement",
       linkType: "summarizes",
       targetSectionId: "workflow",
     },
     {
-      sourceSlotId: "summary",
+      sourceParagraphId: "summarySummary",
+      sourceSentenceId: "summaryStatement",
       linkType: "summarizes",
       targetSectionId: "compileModes",
     },

@@ -6,6 +6,13 @@ export type DocumentLayer = "document" | "section" | "paragraph" | "sentence";
 
 export type DiagnosisSeverity = "error" | "warning" | "info";
 
+export type SemanticValueKind = "text" | "enum" | "reference";
+
+export interface SemanticValue {
+  kind: SemanticValueKind;
+  value: string;
+}
+
 export interface SemanticLink {
   type: string;
   targetId: string;
@@ -16,6 +23,7 @@ export interface SemanticDocumentNode {
   layer: DocumentLayer;
   role: string;
   text: string;
+  semanticPayload?: Record<string, SemanticValue>;
   children?: SemanticDocumentNode[];
   links: SemanticLink[];
 }

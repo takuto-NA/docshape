@@ -17,6 +17,7 @@ This page is the root for repository documentation.
 - [0002 Bottom-up SemanticDocumentGraph construction](adr/0002-bottom-up-semantic-document-graph.md)
 - [0003 Schema-defined role and link taxonomy](adr/0003-schema-defined-role-and-link-taxonomy.md)
 - [0004 DocumentFrame above SemanticDocumentGraph](adr/0004-document-frame-above-semantic-document-graph.md)
+- [0005 Semantic-first SentencePattern frames](adr/0005-semantic-first-sentence-patterns.md)
 
 ## Document rules
 

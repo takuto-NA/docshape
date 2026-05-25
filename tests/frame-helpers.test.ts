@@ -7,7 +7,11 @@ import {
 import { expandFrameInstance } from "../src/frame/expand-frame.js";
 import { technicalArticleExplainerFrameDefinition } from "../src/frames/technical-article-explainer.js";
 import { technicalArticleExplainerFrame } from "../src/frames/technical-article-explainer-fluent.js";
-import { buildLibraryUsageFrameInstance } from "./fixtures/library-usage-frame.js";
+import {
+  buildLibraryUsageFrameInstance,
+  buildLibraryUsageSemanticFills,
+  buildLibraryUsageProseFills,
+} from "./fixtures/library-usage-frame.js";
 
 describe("frame helpers", () => {
   it("returns built-in frames from the registry", () => {
@@ -17,13 +21,14 @@ describe("frame helpers", () => {
     expect(getFrameById("unknown.frame")).toBeUndefined();
   });
 
-  it("marks compile invalid when required slot fills are missing", () => {
+  it("marks compile invalid when required semantic fields are missing", () => {
     const compileResult = compileFrameInstanceRenderable(
       technicalArticleExplainerFrameDefinition,
       {
         frameId: "technical_article.explainer",
         title: "Incomplete article",
-        fills: {},
+        semanticFills: {},
+        proseFills: {},
       },
     );
 
@@ -31,7 +36,7 @@ describe("frame helpers", () => {
     expect(compileResult.diagnoses).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          code: FRAME_DIAGNOSTIC_CODES.missingRequiredSlotFill,
+          code: FRAME_DIAGNOSTIC_CODES.missingRequiredSemanticField,
           severity: "error",
         }),
       ]),
@@ -42,7 +47,8 @@ describe("frame helpers", () => {
     const expansionResult = expandFrameInstance(technicalArticleExplainerFrameDefinition, {
       frameId: "wrong.frame",
       title: "Mismatch",
-      fills: {},
+      semanticFills: {},
+      proseFills: {},
     });
 
     expect(expansionResult.expansionDiagnoses).toEqual(
@@ -59,10 +65,18 @@ describe("frame helpers", () => {
 describe("technicalArticleExplainerFrame fluent API", () => {
   it("produces equivalent graphs from fluent and plain instance paths", () => {
     const plainInstance = buildLibraryUsageFrameInstance();
-    const fluentGraph = technicalArticleExplainerFrame(plainInstance.title)
-      .fill(plainInstance.fills)
-      .deviateFromMany(plainInstance.deviations ?? [])
-      .toGraph();
+    let author = technicalArticleExplainerFrame(plainInstance.title);
+
+    for (const [paragraphId, semanticFill] of Object.entries(plainInstance.semanticFills)) {
+      author = author.fillSemantic(paragraphId, semanticFill);
+    }
+
+    for (const [paragraphId, proseFill] of Object.entries(plainInstance.proseFills)) {
+      author = author.fillProse(paragraphId, proseFill);
+    }
+
+    author = author.deviateFromMany(plainInstance.deviations ?? []);
+    const fluentGraph = author.toGraph();
     const plainGraph = expandFrameInstance(
       technicalArticleExplainerFrameDefinition,
       plainInstance,
@@ -72,10 +86,20 @@ describe("technicalArticleExplainerFrame fluent API", () => {
   });
 
   it("compiles and renders through the fluent API", () => {
-    const plainInstance = buildLibraryUsageFrameInstance();
-    const author = technicalArticleExplainerFrame(plainInstance.title)
-      .fill(plainInstance.fills)
-      .deviateFromMany(plainInstance.deviations ?? []);
+    let author = technicalArticleExplainerFrame("How to use docshape");
+
+    for (const [paragraphId, semanticFill] of Object.entries(buildLibraryUsageSemanticFills())) {
+      author = author.fillSemantic(paragraphId, semanticFill);
+    }
+
+    for (const [paragraphId, proseFill] of Object.entries(buildLibraryUsageProseFills())) {
+      author = author.fillProse(paragraphId, proseFill);
+    }
+
+    author = author.deviate(
+      "summaryLimitations",
+      "This short article does not need a separate limitations section.",
+    );
 
     const compileResult = author.compileRenderable();
     const markdown = author.renderMarkdown();
@@ -85,16 +109,17 @@ describe("technicalArticleExplainerFrame fluent API", () => {
   });
 
   it("rejects deviations without a reason", () => {
-    const compileResult = technicalArticleExplainerFrame("Invalid deviation")
-      .fill({
-        problem: "Problem text.",
-        goal: "Goal text.",
-        workflow: "Workflow text.",
-        example: "Example text.",
-        summary: "Summary text.",
-      })
-      .deviate("limitations", "   ")
-      .compileRenderable();
+    let author = technicalArticleExplainerFrame("Invalid deviation");
+
+    for (const [paragraphId, semanticFill] of Object.entries(buildLibraryUsageSemanticFills())) {
+      author = author.fillSemantic(paragraphId, semanticFill);
+    }
+
+    for (const [paragraphId, proseFill] of Object.entries(buildLibraryUsageProseFills())) {
+      author = author.fillProse(paragraphId, proseFill);
+    }
+
+    const compileResult = author.deviate("summaryLimitations", "   ").compileRenderable();
 
     expect(compileResult.isValid).toBe(false);
     expect(compileResult.diagnoses).toEqual(

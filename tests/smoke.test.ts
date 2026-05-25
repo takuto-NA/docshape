@@ -7,6 +7,10 @@ import {
   technicalArticleExplainerFrame,
   technicalArticleSchema,
 } from "../src/index.js";
+import {
+  buildLibraryUsageProseFills,
+  buildLibraryUsageSemanticFills,
+} from "./fixtures/library-usage-frame.js";
 
 describe("package smoke test", () => {
   it("imports the public graph core API", () => {
@@ -29,15 +33,17 @@ describe("package smoke test", () => {
 
     expect(frameDefinition).toBeDefined();
 
-    const author = technicalArticleExplainerFrame("Smoke test")
-      .fill({
-        problem: "Problem text.",
-        goal: "Goal text.",
-        workflow: "Workflow text.",
-        example: "Example text.",
-        summary: "Summary text.",
-      })
-      .deviate("limitations", "Smoke test omits limitations.");
+    let author = technicalArticleExplainerFrame("Smoke test");
+
+    for (const [paragraphId, semanticFill] of Object.entries(buildLibraryUsageSemanticFills())) {
+      author = author.fillSemantic(paragraphId, semanticFill);
+    }
+
+    for (const [paragraphId, proseFill] of Object.entries(buildLibraryUsageProseFills())) {
+      author = author.fillProse(paragraphId, proseFill);
+    }
+
+    author = author.deviate("summaryLimitations", "Smoke test omits limitations.");
 
     expect(author.compileRenderable().isValid).toBe(true);
     expect(

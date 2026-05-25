@@ -23,22 +23,21 @@ export function generateFrameNodeId(
   return [frameId, instanceKey, ...nodeParts].join(".");
 }
 
-export function generateSlotNodeId(
+export function generateParagraphNodeId(
   frameId: string,
   instanceKey: string,
-  slotId: string,
-  layer: "paragraph" | "sentence",
-  sentenceIndex?: number,
+  paragraphId: string,
 ): string {
-  if (layer === "paragraph") {
-    return generateFrameNodeId(frameId, instanceKey, [slotId, "paragraph"]);
-  }
+  return generateFrameNodeId(frameId, instanceKey, [paragraphId, "paragraph"]);
+}
 
-  if (sentenceIndex === undefined) {
-    return generateFrameNodeId(frameId, instanceKey, [slotId, "sentence"]);
-  }
-
-  return generateFrameNodeId(frameId, instanceKey, [slotId, "sentence", String(sentenceIndex)]);
+export function generateSentenceNodeId(
+  frameId: string,
+  instanceKey: string,
+  paragraphId: string,
+  sentenceId: string,
+): string {
+  return generateFrameNodeId(frameId, instanceKey, [paragraphId, "sentence", sentenceId]);
 }
 
 export function generateSectionNodeId(
@@ -66,17 +65,21 @@ export function resolveNodeId(
   return logicalId;
 }
 
-export function buildLogicalSlotSentenceId(
+export function buildLogicalParagraphId(
   frameId: string,
   instanceKey: string,
-  slotId: string,
-  sentenceIndex?: number,
+  paragraphId: string,
 ): string {
-  if (sentenceIndex === undefined) {
-    return generateSlotNodeId(frameId, instanceKey, slotId, "sentence");
-  }
+  return generateParagraphNodeId(frameId, instanceKey, paragraphId);
+}
 
-  return generateSlotNodeId(frameId, instanceKey, slotId, "sentence", sentenceIndex);
+export function buildLogicalSentenceId(
+  frameId: string,
+  instanceKey: string,
+  paragraphId: string,
+  sentenceId: string,
+): string {
+  return generateSentenceNodeId(frameId, instanceKey, paragraphId, sentenceId);
 }
 
 export function buildLogicalSectionId(
@@ -85,4 +88,27 @@ export function buildLogicalSectionId(
   sectionId: string,
 ): string {
   return generateSectionNodeId(frameId, instanceKey, sectionId);
+}
+
+export function buildSentenceReferenceKey(paragraphId: string, sentenceId: string): string {
+  return `${paragraphId}::${sentenceId}`;
+}
+
+export function parseSentenceReferenceKey(referenceKey: string): {
+  paragraphId: string;
+  sentenceId: string;
+} {
+  const separatorIndex = referenceKey.indexOf("::");
+
+  if (separatorIndex === -1) {
+    return {
+      paragraphId: referenceKey,
+      sentenceId: referenceKey,
+    };
+  }
+
+  return {
+    paragraphId: referenceKey.slice(0, separatorIndex),
+    sentenceId: referenceKey.slice(separatorIndex + 2),
+  };
 }

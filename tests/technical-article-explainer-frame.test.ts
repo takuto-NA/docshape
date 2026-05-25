@@ -8,7 +8,7 @@ import { technicalArticleExplainerFrameDefinition } from "../src/frames/technica
 import { buildLibraryUsageFrameInstance } from "./fixtures/library-usage-frame.js";
 
 describe("technical_article.explainer frame", () => {
-  it("passes structural and renderable compile when required slots are filled", () => {
+  it("passes structural and renderable compile when required semantic and prose fills are provided", () => {
     const instance = buildLibraryUsageFrameInstance();
     const structuralResult = compileFrameInstanceStructural(
       technicalArticleExplainerFrameDefinition,

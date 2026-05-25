@@ -20,8 +20,10 @@ The MVP is LLM-independent. The graph is built in TypeScript, validated against 
 | Render Markdown from tree order | `renderMarkdown` | Semantic links do not affect output order |
 | Receive structured diagnostics | `CompileResult.diagnoses` | Stable codes, severities, node ids |
 | Get edit suggestions | `Diagnosis.suggestedOperations` | PatchPlan types only; no auto-apply |
-| Author through DocumentFrame | `technicalArticleExplainerFrame` | Default sections, slots, links, deviations |
-| Expand frame instances to graphs | `expandFrameInstance`, `compileFrameInstance` | Frame constructs; schema validates |
+| Fill semantic fields before prose | `fillSemantic`, `compileFrameInstanceStructural` | Frame validates semantic readiness |
+| Fill sentence prose for rendering | `fillProse`, `compileFrameInstanceRenderable` | Frame validates prose readiness |
+| Author through DocumentFrame | `technicalArticleExplainerFrame` | Paragraph patterns, sentence patterns, semantic and prose fills |
+| Expand frame instances to graphs | `expandFrameInstance`, `compileFrameInstance` | Sentence nodes may carry `semanticPayload` |
 
 ## Out of scope (MVP)
 
@@ -56,10 +58,10 @@ import {
 Normal authoring starts from DocumentFrame. The frame expands into SemanticDocumentGraph, then the existing compiler validates and renders the graph.
 
 ```txt
-DocumentFrame + fills/deviations
-  ↓ expand
+DocumentFrame + semantic fills/deviations
+  ↓ expand (semantic payload on sentences)
 SemanticDocumentGraph
-  ↓ compileStructural / compileRenderable
+  ↓ compileStructural / compileRenderable (+ prose fills for renderable)
 Diagnosis
   ↓ renderMarkdown
 Markdown
@@ -69,17 +71,21 @@ See [DocumentFrame authoring](guide/frame-authoring.md).
 
 ## Core workflow
 
+Low-level graph authoring:
+
 ```txt
 Define SemanticDocumentGraph (tree + links)
   ↓
 compileStructural(graph, schema)
   ↓
-Fill sentence text into slots
+Fill sentence text
   ↓
 compileRenderable(graph, schema)
   ↓
 renderMarkdown(graph)
 ```
+
+DocumentFrame authoring fills semantic fields first, then sentence prose. See [DocumentFrame authoring](guide/frame-authoring.md).
 
 Structural compile checks graph shape, vocabulary, and link obligations. Renderable compile adds required-text checks.
 
@@ -155,10 +161,14 @@ Constant: `CORE_DIAGNOSTIC_CODES`
 
 | Code | Meaning |
 |------|---------|
-| `FRAME-REQ-001` | Required slot has no fill text |
-| `FRAME-DEV-001` | Slot omitted with a recorded reason (info) |
-| `FRAME-FILL-001` | Unknown fill key for the frame |
-| `FRAME-DEV-002` | Unknown deviation slot id |
+| `FRAME-SEM-001` | Required semantic field missing |
+| `FRAME-SEM-002` | Unknown semantic field |
+| `FRAME-SEM-003` | Semantic value kind mismatch |
+| `FRAME-PROSE-001` | Required sentence prose missing |
+| `FRAME-PROSE-002` | Unknown prose sentence id |
+| `FRAME-DEV-001` | Paragraph pattern omitted with a recorded reason (info) |
+| `FRAME-FILL-001` | Unknown semantic or prose fill paragraph id |
+| `FRAME-DEV-002` | Unknown deviation paragraph id |
 | `FRAME-MISMATCH-001` | FrameInstance frameId does not match frame definition |
 | `FRAME-DEV-003` | Deviation reason is empty |
 
@@ -170,6 +180,7 @@ When a schema constraint fails, the compiler may attach suggested operations to 
 
 ## Examples
 
+- [Capabilities overview](guide/capabilities.md)
 - [High-level frame script](../examples/library-usage-frame.mjs)
 - [Low-level IR script](../examples/library-usage-article.mjs)
 - [DocumentFrame walkthrough](guide/frame-authoring.md)

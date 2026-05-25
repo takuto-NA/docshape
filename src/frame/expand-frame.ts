@@ -3,43 +3,53 @@
  */
 
 import { createSemanticDocumentNode, defineSemanticDocumentGraph } from "../helpers/define-graph.js";
-import type { SemanticDocumentNode, SemanticLink } from "../types/domain.js";
+import type { SemanticDocumentNode, SemanticLink, SemanticValue } from "../types/domain.js";
 import type {
   DocumentFrame,
   FrameExpansionResult,
   FrameInstance,
-  ResolvedFrameSlot,
+  ParagraphPatternResolutionResult,
+  ResolvedParagraphPattern,
+  SentencePattern,
 } from "../types/frame.js";
 import {
   buildLogicalSectionId,
-  buildLogicalSlotSentenceId,
+  buildLogicalSentenceId,
+  buildSentenceReferenceKey,
   createFrameInstanceKey,
   generateDocumentNodeId,
-  generateSectionNodeId,
-  generateSlotNodeId,
+  generateParagraphNodeId,
+  generateSentenceNodeId,
   resolveNodeId,
 } from "./id-generator.js";
-import { getIncludedSlots, resolveFrameSlots } from "./resolve-slots.js";
+import {
+  getIncludedParagraphPatterns,
+  resolveParagraphPatterns,
+} from "./resolve-paragraph-patterns.js";
 
 export function expandFrameInstance(
   frame: DocumentFrame,
   instance: FrameInstance,
+  patternResolution?: ParagraphPatternResolutionResult,
 ): FrameExpansionResult {
-  const slotResolution = resolveFrameSlots(frame, instance);
-  const includedSlots = getIncludedSlots(slotResolution.resolvedSlots);
+  const resolvedPatternResolution =
+    patternResolution ?? resolveParagraphPatterns(frame, instance);
+  const includedParagraphPatterns = getIncludedParagraphPatterns(
+    resolvedPatternResolution.resolvedParagraphPatterns,
+  );
   const instanceKey = createFrameInstanceKey(instance.title);
   const idOverrides = instance.idOverrides ?? {};
-  const slotSentenceIdLookup = buildSlotSentenceIdLookup(
+  const sentenceReferenceIdLookup = buildSentenceReferenceIdLookup(
     frame.frameId,
     instanceKey,
-    includedSlots,
+    includedParagraphPatterns,
     idOverrides,
   );
   const sectionIdLookup = buildSectionIdLookup(frame, instanceKey, idOverrides);
   const sectionNodes = buildSectionNodes(
     frame,
     instanceKey,
-    includedSlots,
+    includedParagraphPatterns,
     idOverrides,
   );
   const documentNode = createSemanticDocumentNode({
@@ -56,11 +66,11 @@ export function expandFrameInstance(
     children: sectionNodes,
   });
 
-  attachDefaultLinks(documentNode, frame, slotSentenceIdLookup, sectionIdLookup);
+  attachLinkTemplates(documentNode, frame, sentenceReferenceIdLookup, sectionIdLookup);
 
   return {
     graph: defineSemanticDocumentGraph(documentNode),
-    expansionDiagnoses: slotResolution.diagnoses,
+    expansionDiagnoses: resolvedPatternResolution.diagnoses,
   };
 }
 
@@ -86,45 +96,48 @@ function buildSectionIdLookup(
   return sectionIdLookup;
 }
 
-function buildSlotSentenceIdLookup(
+function buildSentenceReferenceIdLookup(
   frameId: string,
   instanceKey: string,
-  includedSlots: ResolvedFrameSlot[],
+  includedParagraphPatterns: ResolvedParagraphPattern[],
   idOverrides: Record<string, string>,
 ): Map<string, string> {
-  const slotSentenceIdLookup = new Map<string, string>();
+  const sentenceReferenceIdLookup = new Map<string, string>();
 
-  for (const resolvedSlot of includedSlots) {
-    const sentenceTexts = splitSlotText(resolvedSlot);
-    const primarySentenceIndex = sentenceTexts.length > 1 ? 0 : undefined;
-    const logicalSentenceId = buildLogicalSlotSentenceId(
-      frameId,
-      instanceKey,
-      resolvedSlot.slotDefinition.slotId,
-      primarySentenceIndex,
-    );
-    slotSentenceIdLookup.set(
-      resolvedSlot.slotDefinition.slotId,
-      resolveNodeId(frameId, instanceKey, logicalSentenceId, idOverrides),
-    );
+  for (const resolvedParagraphPattern of includedParagraphPatterns) {
+    const paragraphId = resolvedParagraphPattern.patternDefinition.paragraphId;
+
+    for (const sentencePattern of resolvedParagraphPattern.patternDefinition.sentences) {
+      const logicalSentenceId = buildLogicalSentenceId(
+        frameId,
+        instanceKey,
+        paragraphId,
+        sentencePattern.sentenceId,
+      );
+      sentenceReferenceIdLookup.set(
+        buildSentenceReferenceKey(paragraphId, sentencePattern.sentenceId),
+        resolveNodeId(frameId, instanceKey, logicalSentenceId, idOverrides),
+      );
+    }
   }
 
-  return slotSentenceIdLookup;
+  return sentenceReferenceIdLookup;
 }
 
 function buildSectionNodes(
   frame: DocumentFrame,
   instanceKey: string,
-  includedSlots: ResolvedFrameSlot[],
+  includedParagraphPatterns: ResolvedParagraphPattern[],
   idOverrides: Record<string, string>,
 ): SemanticDocumentNode[] {
-  const slotsBySectionId = groupSlotsBySection(includedSlots);
+  const paragraphPatternsBySectionId = groupParagraphPatternsBySection(includedParagraphPatterns);
 
   return frame.sections
     .map((sectionDefinition) => {
-      const sectionSlots = slotsBySectionId.get(sectionDefinition.sectionId) ?? [];
+      const sectionParagraphPatterns =
+        paragraphPatternsBySectionId.get(sectionDefinition.sectionId) ?? [];
 
-      if (sectionSlots.length === 0) {
+      if (sectionParagraphPatterns.length === 0) {
         return undefined;
       }
 
@@ -140,83 +153,129 @@ function buildSectionNodes(
         role: sectionDefinition.role,
         text: sectionDefinition.title,
         links: [],
-        children: sectionSlots.map((resolvedSlot) =>
-          buildParagraphNode(frame.frameId, instanceKey, resolvedSlot, idOverrides),
+        children: sectionParagraphPatterns.map((resolvedParagraphPattern) =>
+          buildParagraphNode(
+            frame.frameId,
+            instanceKey,
+            resolvedParagraphPattern,
+            idOverrides,
+          ),
         ),
       });
     })
     .filter((sectionNode): sectionNode is SemanticDocumentNode => sectionNode !== undefined);
 }
 
-function groupSlotsBySection(
-  includedSlots: ResolvedFrameSlot[],
-): Map<string, ResolvedFrameSlot[]> {
-  const slotsBySectionId = new Map<string, ResolvedFrameSlot[]>();
+function groupParagraphPatternsBySection(
+  includedParagraphPatterns: ResolvedParagraphPattern[],
+): Map<string, ResolvedParagraphPattern[]> {
+  const paragraphPatternsBySectionId = new Map<string, ResolvedParagraphPattern[]>();
 
-  for (const resolvedSlot of includedSlots) {
-    const sectionId = resolvedSlot.slotDefinition.sectionId;
-    const existingSlots = slotsBySectionId.get(sectionId) ?? [];
-    existingSlots.push(resolvedSlot);
-    slotsBySectionId.set(sectionId, existingSlots);
+  for (const resolvedParagraphPattern of includedParagraphPatterns) {
+    const sectionId = resolvedParagraphPattern.patternDefinition.sectionId;
+    const existingParagraphPatterns = paragraphPatternsBySectionId.get(sectionId) ?? [];
+    existingParagraphPatterns.push(resolvedParagraphPattern);
+    paragraphPatternsBySectionId.set(sectionId, existingParagraphPatterns);
   }
 
-  return slotsBySectionId;
+  return paragraphPatternsBySectionId;
 }
 
 function buildParagraphNode(
   frameId: string,
   instanceKey: string,
-  resolvedSlot: ResolvedFrameSlot,
+  resolvedParagraphPattern: ResolvedParagraphPattern,
   idOverrides: Record<string, string>,
 ): SemanticDocumentNode {
-  const slotId = resolvedSlot.slotDefinition.slotId;
-  const paragraphLogicalId = generateSlotNodeId(frameId, instanceKey, slotId, "paragraph");
-  const sentenceTexts = splitSlotText(resolvedSlot);
+  const paragraphId = resolvedParagraphPattern.patternDefinition.paragraphId;
+  const paragraphLogicalId = generateParagraphNodeId(frameId, instanceKey, paragraphId);
+  const paragraphRole =
+    resolvedParagraphPattern.patternDefinition.paragraphRole ??
+    resolvedParagraphPattern.patternDefinition.sentences[0]?.role ??
+    "background";
 
   return createSemanticDocumentNode({
     id: resolveNodeId(frameId, instanceKey, paragraphLogicalId, idOverrides),
     layer: "paragraph",
-    role: resolvedSlot.slotDefinition.role,
+    role: paragraphRole,
     text: "",
     links: [],
-    children: sentenceTexts.map((sentenceText, sentenceIndex) => {
-      const sentenceLogicalId =
-        sentenceTexts.length > 1
-          ? generateSlotNodeId(frameId, instanceKey, slotId, "sentence", sentenceIndex)
-          : generateSlotNodeId(frameId, instanceKey, slotId, "sentence");
-
-      return createSemanticDocumentNode({
-        id: resolveNodeId(frameId, instanceKey, sentenceLogicalId, idOverrides),
-        layer: "sentence",
-        role: resolvedSlot.slotDefinition.role,
-        text: sentenceText,
-        links: [],
-      });
-    }),
+    children: resolvedParagraphPattern.patternDefinition.sentences.map((sentencePattern) =>
+      buildSentenceNode(
+        frameId,
+        instanceKey,
+        paragraphId,
+        sentencePattern,
+        resolvedParagraphPattern,
+        idOverrides,
+      ),
+    ),
   });
 }
 
-function splitSlotText(resolvedSlot: ResolvedFrameSlot): string[] {
-  if (!resolvedSlot.slotDefinition.multiSentence) {
-    return [resolvedSlot.text];
-  }
+function buildSentenceNode(
+  frameId: string,
+  instanceKey: string,
+  paragraphId: string,
+  sentencePattern: SentencePattern,
+  resolvedParagraphPattern: ResolvedParagraphPattern,
+  idOverrides: Record<string, string>,
+): SemanticDocumentNode {
+  const sentenceLogicalId = generateSentenceNodeId(
+    frameId,
+    instanceKey,
+    paragraphId,
+    sentencePattern.sentenceId,
+  );
+  const proseText =
+    resolvedParagraphPattern.proseFill[sentencePattern.sentenceId]?.trim() ?? "";
 
-  return resolvedSlot.text
-    .split("\n")
-    .map((sentenceText) => sentenceText.trim())
-    .filter((sentenceText) => sentenceText.length > 0);
+  return createSemanticDocumentNode({
+    id: resolveNodeId(frameId, instanceKey, sentenceLogicalId, idOverrides),
+    layer: "sentence",
+    role: sentencePattern.role,
+    text: proseText,
+    semanticPayload: buildSentenceSemanticPayload(
+      sentencePattern,
+      resolvedParagraphPattern.semanticFill,
+    ),
+    links: [],
+  });
 }
 
-function attachDefaultLinks(
+function buildSentenceSemanticPayload(
+  sentencePattern: SentencePattern,
+  semanticFill: Record<string, SemanticValue>,
+): Record<string, SemanticValue> {
+  const sentenceSemanticPayload: Record<string, SemanticValue> = {};
+
+  for (const semanticFieldId of sentencePattern.requiredSemanticFieldIds) {
+    const semanticValue = semanticFill[semanticFieldId];
+
+    if (semanticValue === undefined) {
+      continue;
+    }
+
+    sentenceSemanticPayload[semanticFieldId] = semanticValue;
+  }
+
+  return sentenceSemanticPayload;
+}
+
+function attachLinkTemplates(
   documentNode: SemanticDocumentNode,
   frame: DocumentFrame,
-  slotSentenceIdLookup: Map<string, string>,
+  sentenceReferenceIdLookup: Map<string, string>,
   sectionIdLookup: Map<string, string>,
 ): void {
   const nodeIndex = indexNodesById(documentNode);
 
   for (const linkTemplate of frame.linkTemplates) {
-    const sourceNodeId = slotSentenceIdLookup.get(linkTemplate.sourceSlotId);
+    const sourceReferenceKey = buildSentenceReferenceKey(
+      linkTemplate.sourceParagraphId,
+      linkTemplate.sourceSentenceId,
+    );
+    const sourceNodeId = sentenceReferenceIdLookup.get(sourceReferenceKey);
 
     if (sourceNodeId === undefined) {
       continue;
@@ -228,7 +287,11 @@ function attachDefaultLinks(
       continue;
     }
 
-    const targetNodeId = resolveLinkTargetId(linkTemplate, slotSentenceIdLookup, sectionIdLookup);
+    const targetNodeId = resolveLinkTargetId(
+      linkTemplate,
+      sentenceReferenceIdLookup,
+      sectionIdLookup,
+    );
 
     if (targetNodeId === undefined) {
       continue;
@@ -244,11 +307,19 @@ function attachDefaultLinks(
 
 function resolveLinkTargetId(
   linkTemplate: DocumentFrame["linkTemplates"][number],
-  slotSentenceIdLookup: Map<string, string>,
+  sentenceReferenceIdLookup: Map<string, string>,
   sectionIdLookup: Map<string, string>,
 ): string | undefined {
-  if (linkTemplate.targetSlotId !== undefined) {
-    return slotSentenceIdLookup.get(linkTemplate.targetSlotId);
+  if (
+    linkTemplate.targetParagraphId !== undefined &&
+    linkTemplate.targetSentenceId !== undefined
+  ) {
+    return sentenceReferenceIdLookup.get(
+      buildSentenceReferenceKey(
+        linkTemplate.targetParagraphId,
+        linkTemplate.targetSentenceId,
+      ),
+    );
   }
 
   if (linkTemplate.targetSectionId !== undefined) {

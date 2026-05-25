@@ -13,6 +13,10 @@ import type {
   FrameInstance,
 } from "../types/frame.js";
 import { expandFrameInstance } from "./expand-frame.js";
+import {
+  resolveParagraphPatterns,
+  validateProseFills,
+} from "./resolve-paragraph-patterns.js";
 
 const frameRegistry: Record<string, DocumentFrame> = {
   [technicalArticleExplainerFrameDefinition.frameId]: technicalArticleExplainerFrameDefinition,
@@ -34,13 +38,26 @@ export function compileFrameInstance(
   instance: FrameInstance,
   options: CompileOptions = { mode: "structural" },
 ): FrameCompileResult {
-  const expansionResult = expandFrameInstance(frame, instance);
+  const patternResolution = resolveParagraphPatterns(frame, instance);
+  const expansionResult = expandFrameInstance(frame, instance, patternResolution);
+  const proseDiagnoses =
+    options.mode === "renderable"
+      ? validateProseFills(
+          frame,
+          instance,
+          patternResolution.resolvedParagraphPatterns,
+        )
+      : [];
   const compileResult =
     options.mode === "renderable"
       ? compileRenderable(expansionResult.graph, frame.schema)
       : compileStructural(expansionResult.graph, frame.schema);
 
-  return mergeFrameCompileResult(expansionResult, compileResult);
+  return mergeFrameCompileResult(
+    expansionResult,
+    compileResult,
+    [...patternResolution.diagnoses, ...proseDiagnoses],
+  );
 }
 
 export function compileFrameInstanceStructural(
@@ -68,17 +85,16 @@ export function renderFrameInstanceMarkdown(
 function mergeFrameCompileResult(
   expansionResult: FrameExpansionResult,
   compileResult: CompileResult,
+  frameDiagnoses: CompileResult["diagnoses"],
 ): FrameCompileResult {
-  const expansionErrors = expansionResult.expansionDiagnoses.filter(
-    (diagnosis) => diagnosis.severity === "error",
-  );
-  const mergedDiagnoses = [...expansionResult.expansionDiagnoses, ...compileResult.diagnoses];
+  const frameErrors = frameDiagnoses.filter((diagnosis) => diagnosis.severity === "error");
+  const mergedDiagnoses = [...frameDiagnoses, ...compileResult.diagnoses];
 
   return {
     graph: expansionResult.graph,
-    expansionDiagnoses: expansionResult.expansionDiagnoses,
+    expansionDiagnoses: frameDiagnoses,
     metadata: compileResult.metadata,
     diagnoses: mergedDiagnoses,
-    isValid: expansionErrors.length === 0 && compileResult.isValid,
+    isValid: frameErrors.length === 0 && compileResult.isValid,
   };
 }

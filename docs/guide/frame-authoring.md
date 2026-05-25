@@ -4,7 +4,7 @@ DocumentFrame is the normal authoring layer. SemanticDocumentGraph remains compi
 
 ## Purpose
 
-A DocumentFrame provides default sections, slots, semantic links, and expansion rules. Authors fill slots and explicitly deviate from the frame when needed. Schema still validates the expanded graph.
+A DocumentFrame provides default sections, paragraph patterns, sentence patterns, semantic links, and expansion rules. Authors fill semantic fields first, then add sentence prose. Schema still validates the expanded graph.
 
 ## Built-in frame: technical_article.explainer
 
@@ -17,33 +17,46 @@ Default sections:
 - Compile modes
 - Summary
 
-Author-facing fill slots:
+Author-facing paragraph patterns include:
 
-- `problem` (required)
-- `goal` (required)
-- `workflow` (required)
-- `example` (required, multi-sentence via newline-separated text)
-- `summary` (required)
-- `limitations` (recommended, omit with `deviate`)
+- `introductionProblem` (required)
+- `introductionGoal` (required)
+- `workflowBackground` (required)
+- `workflowExample` (required, three sentence patterns)
+- `summarySummary` (required)
+- `summaryLimitations` (recommended, omit with `deviate`)
 
-Default slot text is provided for design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints.
+Default semantic values are provided for design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints.
+
+## Sentence patterns and semantic payload
+
+Each paragraph pattern contains one or more sentence patterns. A sentence pattern defines:
+
+- `sentenceId` — prose fill key
+- `role` — schema role on the expanded sentence node
+- `requiredSemanticFieldIds` — fields copied into `semanticPayload`
+- `proseRequirement` — `required` or `optional` for renderable compile
+
+Expanded graphs store referenced semantic values on sentence nodes. Prose goes into `text` only when provided through `.fillProse()`.
 
 ## Fluent API
 
 ```typescript
 import { technicalArticleExplainerFrame } from "docshape";
 
-const article = technicalArticleExplainerFrame("How to use docshape")
-  .fill({
-    problem: "Technical articles written as prose are hard to validate.",
-    goal: "Docshape validates structure before rendering Markdown.",
-    workflow: "Define the frame, compile structurally, fill text, then render.",
-    example: "Step 1: define the graph.\nStep 2: compile.\nStep 3: render.",
-    summary: "Docshape turns a filled frame into a valid SemanticDocumentGraph.",
+let article = technicalArticleExplainerFrame("How to use docshape")
+  .fillSemantic("introductionProblem", {
+    domain: { kind: "text", value: "technical articles" },
+    pain: { kind: "text", value: "missing support is hard to validate" },
   })
-  .deviate("limitations", "This short article does not need a limitations section.");
+  .deviate("summaryLimitations", "This short article does not need a limitations section.");
 
 article.compileStructural();
+
+article = article.fillProse("introductionProblem", {
+  problemStatement: "Technical articles written as prose are hard to validate.",
+});
+
 article.compileRenderable();
 article.renderMarkdown();
 ```
@@ -54,15 +67,15 @@ article.renderMarkdown();
 const instance = article.toFrameInstance();
 ```
 
-`FrameInstance` stores `frameId`, `title`, `fills`, `deviations`, and optional `idOverrides`.
+`FrameInstance` stores `frameId`, `title`, `semanticFills`, `proseFills`, `deviations`, and optional `idOverrides`.
 
-## Slot requirements
+## Paragraph pattern requirements
 
 | Requirement | Behavior |
 |-------------|----------|
-| required | Must have fill text or default text |
-| recommended | Included by default; omit with `deviate(slotId, reason)` |
-| optional | Included only when fill text is provided |
+| required | Must have required semantic fields filled |
+| recommended | Included by default; omit with `deviate(paragraphId, reason)` |
+| optional | Included only when semantic fill is provided |
 
 Reasoned deviations emit `FRAME-DEV-001` info diagnoses. Empty deviation reasons emit `FRAME-DEV-003` errors. Frame id mismatches emit `FRAME-MISMATCH-001` errors.
 
@@ -75,7 +88,7 @@ npm run build
 node examples/library-usage-frame.mjs
 ```
 
-The script authors the library usage article theme in 36 lines and prints compile results plus Markdown.
+The script shows semantic fill, structural compile, prose fill, renderable compile, and Markdown output.
 
 ## When to use frames versus graphs
 

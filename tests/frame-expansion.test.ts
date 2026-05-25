@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { expandFrameInstance } from "../src/frame/expand-frame.js";
 import { technicalArticleExplainerFrameDefinition } from "../src/frames/technical-article-explainer.js";
-import { buildLibraryUsageFrameInstance } from "./fixtures/library-usage-frame.js";
+import { buildLibraryUsageSemanticOnlyFrameInstance } from "./fixtures/library-usage-frame.js";
 
 describe("expandFrameInstance", () => {
-  it("expands a filled explainer frame into a semantic graph with links", () => {
+  it("expands a semantic-filled explainer frame into a graph with links", () => {
     const expansionResult = expandFrameInstance(
       technicalArticleExplainerFrameDefinition,
-      buildLibraryUsageFrameInstance(),
+      buildLibraryUsageSemanticOnlyFrameInstance(),
     );
 
-    const claimNode = [...expansionResult.graph.root.children ?? []]
+    const claimSentence = [...expansionResult.graph.root.children ?? []]
       .flatMap((section) => section.children ?? [])
       .flatMap((paragraph) => paragraph.children ?? [])
-      .find((sentence) => sentence.role === "claim");
+      .find((sentence) => sentence.id.includes("compileModesClaim"));
 
-    const reasonNode = [...expansionResult.graph.root.children ?? []]
+    const reasonSentence = [...expansionResult.graph.root.children ?? []]
       .flatMap((section) => section.children ?? [])
       .flatMap((paragraph) => paragraph.children ?? [])
-      .find((sentence) => sentence.id.includes("reasonStructural"));
+      .find((sentence) => sentence.id.includes("reasonStructuralStatement"));
 
-    expect(claimNode).toBeDefined();
-    expect(reasonNode?.links.some((link) => link.type === "supports")).toBe(true);
+    expect(claimSentence).toBeDefined();
+    expect(reasonSentence?.links.some((link) => link.type === "supports")).toBe(true);
   });
 });

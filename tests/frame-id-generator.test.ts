@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildLogicalParagraphId,
   buildLogicalSectionId,
-  buildLogicalSlotSentenceId,
+  buildLogicalSentenceId,
+  buildSentenceReferenceKey,
   createFrameInstanceKey,
   generateFrameNodeId,
   resolveNodeId,
@@ -15,18 +17,22 @@ describe("frame id generation", () => {
 
   it("generates deterministic node ids", () => {
     const nodeId = generateFrameNodeId("technical_article.explainer", "how-to-use-docshape", [
-      "problem",
+      "introductionProblem",
       "sentence",
+      "problemStatement",
     ]);
 
-    expect(nodeId).toBe("technical_article.explainer.how-to-use-docshape.problem.sentence");
+    expect(nodeId).toBe(
+      "technical_article.explainer.how-to-use-docshape.introductionProblem.sentence.problemStatement",
+    );
   });
 
   it("supports logical id overrides", () => {
-    const logicalId = buildLogicalSlotSentenceId(
+    const logicalId = buildLogicalSentenceId(
       "technical_article.explainer",
       "how-to-use-docshape",
-      "claim",
+      "compileModesClaim",
+      "claimStatement",
     );
 
     expect(
@@ -36,9 +42,22 @@ describe("frame id generation", () => {
     ).toBe("custom-claim-id");
   });
 
-  it("generates stable section ids", () => {
+  it("generates stable section and paragraph ids", () => {
     expect(
       buildLogicalSectionId("technical_article.explainer", "how-to-use-docshape", "workflow"),
     ).toBe("technical_article.explainer.how-to-use-docshape.workflow.section");
+    expect(
+      buildLogicalParagraphId(
+        "technical_article.explainer",
+        "how-to-use-docshape",
+        "workflowBackground",
+      ),
+    ).toBe("technical_article.explainer.how-to-use-docshape.workflowBackground.paragraph");
+  });
+
+  it("builds stable sentence reference keys", () => {
+    expect(buildSentenceReferenceKey("compileModesClaim", "claimStatement")).toBe(
+      "compileModesClaim::claimStatement",
+    );
   });
 });

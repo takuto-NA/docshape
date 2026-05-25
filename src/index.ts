@@ -14,15 +14,21 @@ export {
   getFrameById,
   renderFrameInstanceMarkdown,
 } from "./frame/frame-helpers.js";
-export { resolveFrameSlots } from "./frame/resolve-slots.js";
 export {
+  resolveParagraphPatterns,
+  validateProseFills,
+} from "./frame/resolve-paragraph-patterns.js";
+export {
+  buildLogicalParagraphId,
   buildLogicalSectionId,
-  buildLogicalSlotSentenceId,
+  buildLogicalSentenceId,
+  buildSentenceReferenceKey,
   createFrameInstanceKey,
   generateDocumentNodeId,
   generateFrameNodeId,
+  generateParagraphNodeId,
   generateSectionNodeId,
-  generateSlotNodeId,
+  generateSentenceNodeId,
 } from "./frame/id-generator.js";
 export {
   TechnicalArticleExplainerAuthor,
@@ -67,6 +73,8 @@ export type {
   SemanticDocumentGraph,
   SemanticDocumentNode,
   SemanticLink,
+  SemanticValue,
+  SemanticValueKind,
   SplitParagraphOperation,
   TextRequiredRule,
 } from "./types/domain.js";
@@ -77,9 +85,16 @@ export type {
   FrameDeviation,
   FrameExpansionResult,
   FrameInstance,
-  FrameLinkTemplate,
+  FramePatternRequirement,
   FrameSectionDefinition,
-  FrameSlotDefinition,
-  FrameSlotRequirement,
-  ResolvedFrameSlot,
+  ParagraphPatternDefinition,
+  ParagraphPatternResolutionResult,
+  ParagraphProseFill,
+  ProseFill,
+  ProseRequirement,
+  ResolvedParagraphPattern,
+  SemanticFieldDefinition,
+  SemanticFill,
+  SentenceLinkTemplate,
+  SentencePattern,
 } from "./types/frame.js";
