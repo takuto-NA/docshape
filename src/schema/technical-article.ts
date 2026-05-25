@@ -4,6 +4,7 @@
 
 import { defineDocumentSchema } from "../helpers/define-graph.js";
 import type { DocumentSchema } from "../types/domain.js";
+import { createDiscourseFlowPredicateConstraint, DISCOURSE_FLOW_DIAGNOSTIC_CODES } from "./discourse-flow.js";
 
 export const TECHNICAL_ARTICLE_ROLES = [
   "document",
@@ -45,6 +46,7 @@ export const TECHNICAL_ARTICLE_DIAGNOSTIC_CODES = {
   unsupportedClaim: "TA-CLAIM-001",
   summaryWithoutTarget: "TA-SUMMARY-001",
   designDecisionWithoutDependency: "TA-DECISION-001",
+  ...DISCOURSE_FLOW_DIAGNOSTIC_CODES,
 } as const;
 
 export const technicalArticleSchema: DocumentSchema = defineDocumentSchema({
@@ -109,4 +111,5 @@ export const technicalArticleSchema: DocumentSchema = defineDocumentSchema({
       },
     },
   ],
+  predicateConstraints: [createDiscourseFlowPredicateConstraint()],
 });

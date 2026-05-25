@@ -108,7 +108,7 @@ sentence → (leaf)
 
 Each node may carry `links`. A link is source-active: the source node performs the relation toward the target.
 
-Example: `reason` supports `claim` is modeled on the reason node as `{ type: "supports", targetId: "sentence-claim" }`.
+Example: `reason` supports `claim` is modeled on the reason node as `{ type: "supports", targetId: "sentence-claim" }`. The reason paragraph must appear before the claim paragraph so Discourse Flow validation passes.
 
 Tree order controls Markdown layout. Link order does not.
 
@@ -118,7 +118,7 @@ Sentence nodes carry fine-grained meaning (`claim`, `evidence`, `reason`). Parag
 
 ### Structural compile
 
-`compileStructural(graph, schema)` checks unique ids, layer nesting, schema roles, schema link types, link targets, declarative constraints, and optional predicate constraints. Text may be empty.
+`compileStructural(graph, schema)` checks unique ids, layer nesting, schema roles, schema link types, link targets, declarative constraints, Discourse Flow predicate constraints on `technicalArticleSchema`, and other optional predicate constraints. Text may be empty.
 
 ### Renderable compile
 
@@ -143,6 +143,16 @@ Sentence-level constraints (`TECHNICAL_ARTICLE_DIAGNOSTIC_CODES`):
 | `claim` | Incoming `supports` from `reason` or `evidence` | `TA-CLAIM-001` |
 | `summary` | Outgoing `summarizes` | `TA-SUMMARY-001` |
 | `design_decision` | Outgoing `depends_on` to `reason` or `constraint` | `TA-DECISION-001` |
+
+Discourse Flow diagnostics (`TA-FLOW-*`) check that semantic links are available in reading order during structural compile:
+
+| Link type | Reading order rule | Code |
+|-----------|-------------------|------|
+| `supports` | Supporting source subtree before supported target | `TA-FLOW-001` |
+| `depends_on` | Dependency target subtree before design decision source | `TA-FLOW-002` |
+| `summarizes` | Summarized target subtree before summary source | `TA-FLOW-003` |
+
+Section targets are considered read only after their full subtree. Flow validation is graph-deterministic, not prose-style linting. Rules, examples, and scope: [Discourse Flow validation](guide/discourse-flow.md).
 
 ## Core diagnostic codes
 
@@ -184,6 +194,7 @@ When a schema constraint fails, the compiler may attach suggested operations to 
 - [High-level frame script](../examples/library-usage-frame.mjs)
 - [Low-level IR script](../examples/library-usage-article.mjs)
 - [DocumentFrame walkthrough](guide/frame-authoring.md)
+- [Discourse Flow validation](guide/discourse-flow.md)
 - [Low-level graph walkthrough](guide/example.md)
 
 ## Custom schemas

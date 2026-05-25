@@ -28,22 +28,6 @@ const graph = defineSemanticDocumentGraph(
         links: [],
         children: [
           createSemanticDocumentNode({
-            id: "paragraph-claim",
-            layer: "paragraph",
-            role: "claim",
-            text: "",
-            links: [],
-            children: [
-              createSemanticDocumentNode({
-                id: "sentence-claim",
-                layer: "sentence",
-                role: "claim",
-                text: "Structure-first authoring keeps obligations explicit.",
-                links: [],
-              }),
-            ],
-          }),
-          createSemanticDocumentNode({
             id: "paragraph-reason",
             layer: "paragraph",
             role: "reason",
@@ -56,6 +40,22 @@ const graph = defineSemanticDocumentGraph(
                 role: "reason",
                 text: "Roles and links can be validated before all prose is written.",
                 links: [{ type: "supports", targetId: "sentence-claim" }],
+              }),
+            ],
+          }),
+          createSemanticDocumentNode({
+            id: "paragraph-claim",
+            layer: "paragraph",
+            role: "claim",
+            text: "",
+            links: [],
+            children: [
+              createSemanticDocumentNode({
+                id: "sentence-claim",
+                layer: "sentence",
+                role: "claim",
+                text: "Structure-first authoring keeps obligations explicit.",
+                links: [],
               }),
             ],
           }),

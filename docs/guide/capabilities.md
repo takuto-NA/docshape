@@ -15,7 +15,7 @@ DocumentFrame authoring is semantic-first. Authors fill meaning before writing f
 ```txt
 fillSemantic (paragraph-level fields)
   ↓ compileStructural
-validate roles, links, and required semantic fields
+validate roles, links, Discourse Flow, and required semantic fields
   ↓ fillProse (sentence-level text)
   ↓ compileRenderable
 validate required prose and schema text rules
@@ -55,7 +55,7 @@ See [DocumentFrame authoring](frame-authoring.md) and [examples/library-usage-fr
 
 | Mode | Frame checks | Schema checks | Empty sentence text |
 |------|--------------|---------------|---------------------|
-| Structural | Required semantic fields | Tree, roles, links, constraints | Allowed |
+| Structural | Required semantic fields | Tree, roles, links, constraints, Discourse Flow | Allowed |
 | Renderable | Required sentence prose | Above plus required text rules | Not allowed for required sentences |
 
 Frame helpers: `compileFrameInstanceStructural`, `compileFrameInstanceRenderable`.
@@ -64,7 +64,7 @@ Frame helpers: `compileFrameInstanceStructural`, `compileFrameInstanceRenderable
 
 Compiler and frame layers return stable codes, severities, and node ids.
 
-Core examples: `DS-DUP-001`, `DS-LAY-001`, `TA-CLAIM-001`
+Core examples: `DS-DUP-001`, `DS-LAY-001`, `TA-CLAIM-001`, `TA-FLOW-001`
 
 Semantic frame examples: `FRAME-SEM-001`, `FRAME-PROSE-001`
 
@@ -86,6 +86,12 @@ Authoring examples: `FRAME-DEV-001`, `FRAME-MISMATCH-001`
 
 `renderMarkdown(graph)` outputs headings and paragraphs from tree order. Semantic link order does not affect layout.
 
+### Validate Discourse Flow during structural compile
+
+`technicalArticleSchema` rejects graphs where `supports`, `depends_on`, or `summarizes` links disagree with tree reading order — for example, a claim appearing before its supporting reason.
+
+Codes: `TA-FLOW-001`, `TA-FLOW-002`, `TA-FLOW-003`. Full rules, examples, scope, and API: [Discourse Flow validation](discourse-flow.md).
+
 ### Define custom schemas
 
 `defineDocumentSchema` accepts role/link vocabularies and declarative constraints. Built-in: `technicalArticleSchema`.
@@ -106,7 +112,7 @@ Recommended: `summaryLimitations` (omit with `.deviate(paragraphId, reason)`).
 
 Default semantic values (no author fill required): `workflowDesignDecision`, `workflowConstraint`, `compileModesClaim`, `compileModesReasonStructural`, `compileModesReasonRenderable`.
 
-Default sentence links include design decision to constraint, reasons to claim, and summary to workflow and compile modes sections.
+Default sentence links include design decision to constraint, reasons to claim, and summary to workflow and compile modes sections. Paragraph pattern order satisfies Discourse Flow; see [reading order](discourse-flow.md#authoring-impact).
 
 ## Out of scope
 
@@ -116,6 +122,7 @@ Default sentence links include design decision to constraint, reasons to claim, 
 - CLI or language server
 - Additional built-in frames (research paper, API docs, and similar)
 - Prose-style linting
+- Automatic paragraph reordering for Discourse Flow violations
 
 ## Setup and verification
 
@@ -126,7 +133,8 @@ Expected result: structural valid before prose fill, renderable valid after pros
 ## Documentation map
 
 - [Library guide](../guide.md) — data model, compile modes, schema reference
+- [Discourse Flow validation](discourse-flow.md) — reading-order rules and examples
 - [DocumentFrame authoring](frame-authoring.md) — fluent API walkthrough
 - [Low-level graph example](example.md)
 - [Domain glossary](../../CONTEXT.md)
-- [Architecture decisions](../adr/) — including [0005 Semantic-first SentencePattern frames](../adr/0005-semantic-first-sentence-patterns.md)
+- [Architecture decisions](../adr/) — including [0005 Semantic-first SentencePattern frames](../adr/0005-semantic-first-sentence-patterns.md) and [0006 Discourse Flow validation](../adr/0006-discourse-flow-validation.md)

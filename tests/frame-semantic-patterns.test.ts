@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildReadingSpanLookup } from "../src/schema/discourse-flow.js";
 import { FRAME_DIAGNOSTIC_CODES } from "../src/constants/frame-diagnostic-codes.js";
 import {
   compileFrameInstanceRenderable,
@@ -105,6 +106,14 @@ describe("semantic-first sentence patterns", () => {
     expect(claimSentence).toBeDefined();
     expect(reasonSentence?.links.some((link) => link.type === "supports")).toBe(true);
     expect(reasonSentence?.links[0]?.targetId).toBe(claimSentence?.id);
+
+    const readingSpanLookup = buildReadingSpanLookup(expansionResult.graph);
+    const reasonReadingSpan = readingSpanLookup.get(reasonSentence?.id ?? "");
+    const claimReadingSpan = readingSpanLookup.get(claimSentence?.id ?? "");
+
+    expect(reasonReadingSpan).toBeDefined();
+    expect(claimReadingSpan).toBeDefined();
+    expect(reasonReadingSpan?.end).toBeLessThan(claimReadingSpan?.start ?? Number.MAX_SAFE_INTEGER);
   });
 
   it("exposes fillSemantic and fillProse instead of fill", () => {

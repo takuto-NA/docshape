@@ -26,7 +26,11 @@ Author-facing paragraph patterns include:
 - `summarySummary` (required)
 - `summaryLimitations` (recommended, omit with `deviate`)
 
-Default semantic values are provided for design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints.
+Default semantic values are provided for design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints and [Discourse Flow](discourse-flow.md) reading order.
+
+## Reading order and Discourse Flow
+
+Paragraph patterns expand into a tree. Semantic links must agree with that reading order during structural compile. In the built-in frame, constraints and reasons appear before the decisions and claims they support. When authoring custom paragraph order or low-level graphs, follow [Discourse Flow validation](discourse-flow.md).
 
 ## Sentence patterns and semantic payload
 

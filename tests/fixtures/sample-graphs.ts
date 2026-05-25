@@ -23,22 +23,6 @@ export const emptyTextTechnicalArticleGraph = defineSemanticDocumentGraph(
         links: [],
         children: [
           createSemanticDocumentNode({
-            id: "paragraph-claim",
-            layer: "paragraph",
-            role: "claim",
-            text: "",
-            links: [],
-            children: [
-              createSemanticDocumentNode({
-                id: "sentence-claim",
-                layer: "sentence",
-                role: "claim",
-                text: "",
-                links: [],
-              }),
-            ],
-          }),
-          createSemanticDocumentNode({
             id: "paragraph-reason",
             layer: "paragraph",
             role: "reason",
@@ -56,6 +40,22 @@ export const emptyTextTechnicalArticleGraph = defineSemanticDocumentGraph(
                     targetId: "sentence-claim",
                   },
                 ],
+              }),
+            ],
+          }),
+          createSemanticDocumentNode({
+            id: "paragraph-claim",
+            layer: "paragraph",
+            role: "claim",
+            text: "",
+            links: [],
+            children: [
+              createSemanticDocumentNode({
+                id: "sentence-claim",
+                layer: "sentence",
+                role: "claim",
+                text: "",
+                links: [],
               }),
             ],
           }),
@@ -81,22 +81,6 @@ export const filledTextTechnicalArticleGraph = defineSemanticDocumentGraph(
         links: [],
         children: [
           createSemanticDocumentNode({
-            id: "paragraph-claim",
-            layer: "paragraph",
-            role: "claim",
-            text: "",
-            links: [],
-            children: [
-              createSemanticDocumentNode({
-                id: "sentence-claim",
-                layer: "sentence",
-                role: "claim",
-                text: "The compiler validates semantic structure before rendering.",
-                links: [],
-              }),
-            ],
-          }),
-          createSemanticDocumentNode({
             id: "paragraph-reason",
             layer: "paragraph",
             role: "reason",
@@ -117,6 +101,22 @@ export const filledTextTechnicalArticleGraph = defineSemanticDocumentGraph(
               }),
             ],
           }),
+          createSemanticDocumentNode({
+            id: "paragraph-claim",
+            layer: "paragraph",
+            role: "claim",
+            text: "",
+            links: [],
+            children: [
+              createSemanticDocumentNode({
+                id: "sentence-claim",
+                layer: "sentence",
+                role: "claim",
+                text: "The compiler validates semantic structure before rendering.",
+                links: [],
+              }),
+            ],
+          }),
         ],
       }),
     ],
@@ -129,12 +129,7 @@ export const treeOrderMarkdownGraph = defineSemanticDocumentGraph(
     layer: "document",
     role: "document",
     text: "",
-    links: [
-      {
-        type: "summarizes",
-        targetId: "section-method",
-      },
-    ],
+    links: [],
     children: [
       createSemanticDocumentNode({
         id: "section-background",

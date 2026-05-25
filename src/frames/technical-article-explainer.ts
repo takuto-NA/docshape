@@ -87,28 +87,6 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
       ],
     },
     {
-      paragraphId: "workflowDesignDecision",
-      sectionId: "workflow",
-      requirement: "required",
-      paragraphRole: "design_decision",
-      semanticFields: [
-        {
-          fieldId: "decision",
-          valueKind: "text",
-          requirement: "required",
-          defaultValue: { kind: "text", value: "Build the graph before writing full prose." },
-        },
-      ],
-      sentences: [
-        {
-          sentenceId: "designDecisionStatement",
-          role: "design_decision",
-          requiredSemanticFieldIds: ["decision"],
-          proseRequirement: "required",
-        },
-      ],
-    },
-    {
       paragraphId: "workflowConstraint",
       sectionId: "workflow",
       requirement: "required",
@@ -130,6 +108,28 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
           sentenceId: "constraintStatement",
           role: "constraint",
           requiredSemanticFieldIds: ["constraint"],
+          proseRequirement: "required",
+        },
+      ],
+    },
+    {
+      paragraphId: "workflowDesignDecision",
+      sectionId: "workflow",
+      requirement: "required",
+      paragraphRole: "design_decision",
+      semanticFields: [
+        {
+          fieldId: "decision",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: { kind: "text", value: "Build the graph before writing full prose." },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "designDecisionStatement",
+          role: "design_decision",
+          requiredSemanticFieldIds: ["decision"],
           proseRequirement: "required",
         },
       ],
@@ -161,31 +161,6 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
           sentenceId: "exampleStepThree",
           role: "example",
           requiredSemanticFieldIds: ["stepThree"],
-          proseRequirement: "required",
-        },
-      ],
-    },
-    {
-      paragraphId: "compileModesClaim",
-      sectionId: "compileModes",
-      requirement: "required",
-      paragraphRole: "claim",
-      semanticFields: [
-        {
-          fieldId: "claim",
-          valueKind: "text",
-          requirement: "required",
-          defaultValue: {
-            kind: "text",
-            value: "Two compile modes separate structure validation from render readiness.",
-          },
-        },
-      ],
-      sentences: [
-        {
-          sentenceId: "claimStatement",
-          role: "claim",
-          requiredSemanticFieldIds: ["claim"],
           proseRequirement: "required",
         },
       ],
@@ -238,6 +213,31 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
           sentenceId: "reasonRenderableStatement",
           role: "reason",
           requiredSemanticFieldIds: ["reason"],
+          proseRequirement: "required",
+        },
+      ],
+    },
+    {
+      paragraphId: "compileModesClaim",
+      sectionId: "compileModes",
+      requirement: "required",
+      paragraphRole: "claim",
+      semanticFields: [
+        {
+          fieldId: "claim",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value: "Two compile modes separate structure validation from render readiness.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "claimStatement",
+          role: "claim",
+          requiredSemanticFieldIds: ["claim"],
           proseRequirement: "required",
         },
       ],

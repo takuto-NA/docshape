@@ -8,6 +8,7 @@ This page is the root for repository documentation.
 - [Capabilities overview](guide/capabilities.md)
 - [Library guide](guide.md)
 - [DocumentFrame authoring](guide/frame-authoring.md)
+- [Discourse Flow validation](guide/discourse-flow.md)
 - [Low-level graph example](guide/example.md)
 - [Domain glossary](../CONTEXT.md)
 
@@ -18,6 +19,7 @@ This page is the root for repository documentation.
 - [0003 Schema-defined role and link taxonomy](adr/0003-schema-defined-role-and-link-taxonomy.md)
 - [0004 DocumentFrame above SemanticDocumentGraph](adr/0004-document-frame-above-semantic-document-graph.md)
 - [0005 Semantic-first SentencePattern frames](adr/0005-semantic-first-sentence-patterns.md)
+- [0006 Discourse Flow validation](adr/0006-discourse-flow-validation.md)
 
 ## Document rules
 

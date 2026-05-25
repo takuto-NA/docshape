@@ -85,6 +85,22 @@ export function buildLibraryUsageArticleGraph() {
               ],
             }),
             createSemanticDocumentNode({
+              id: "paragraph-constraint",
+              layer: "paragraph",
+              role: "constraint",
+              text: "",
+              links: [],
+              children: [
+                createSemanticDocumentNode({
+                  id: "sentence-constraint-empty-text",
+                  layer: "sentence",
+                  role: "constraint",
+                  text: "Structural compile accepts empty sentence text when roles and links are valid.",
+                  links: [],
+                }),
+              ],
+            }),
+            createSemanticDocumentNode({
               id: "paragraph-design-decision",
               layer: "paragraph",
               role: "design_decision",
@@ -102,22 +118,6 @@ export function buildLibraryUsageArticleGraph() {
                       targetId: "sentence-constraint-empty-text",
                     },
                   ],
-                }),
-              ],
-            }),
-            createSemanticDocumentNode({
-              id: "paragraph-constraint",
-              layer: "paragraph",
-              role: "constraint",
-              text: "",
-              links: [],
-              children: [
-                createSemanticDocumentNode({
-                  id: "sentence-constraint-empty-text",
-                  layer: "sentence",
-                  role: "constraint",
-                  text: "Structural compile accepts empty sentence text when roles and links are valid.",
-                  links: [],
                 }),
               ],
             }),
@@ -161,22 +161,6 @@ export function buildLibraryUsageArticleGraph() {
           links: [],
           children: [
             createSemanticDocumentNode({
-              id: "paragraph-claim",
-              layer: "paragraph",
-              role: "claim",
-              text: "",
-              links: [],
-              children: [
-                createSemanticDocumentNode({
-                  id: "sentence-claim",
-                  layer: "sentence",
-                  role: "claim",
-                  text: "Two compile modes separate structure validation from render readiness.",
-                  links: [],
-                }),
-              ],
-            }),
-            createSemanticDocumentNode({
               id: "paragraph-reason-structural",
               layer: "paragraph",
               role: "reason",
@@ -205,6 +189,22 @@ export function buildLibraryUsageArticleGraph() {
                   role: "reason",
                   text: "compileRenderable adds required-text checks so the graph can be output as Markdown.",
                   links: [{ type: "supports", targetId: "sentence-claim" }],
+                }),
+              ],
+            }),
+            createSemanticDocumentNode({
+              id: "paragraph-claim",
+              layer: "paragraph",
+              role: "claim",
+              text: "",
+              links: [],
+              children: [
+                createSemanticDocumentNode({
+                  id: "sentence-claim",
+                  layer: "sentence",
+                  role: "claim",
+                  text: "Two compile modes separate structure validation from render readiness.",
+                  links: [],
                 }),
               ],
             }),
