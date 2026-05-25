@@ -4,6 +4,35 @@
 
 export { compileRenderable, compileStructural } from "./compiler/compile-graph.js";
 export { CORE_DIAGNOSTIC_CODES } from "./constants/diagnostic-codes.js";
+export { FRAME_DIAGNOSTIC_CODES } from "./constants/frame-diagnostic-codes.js";
+export { expandFrameInstance } from "./frame/expand-frame.js";
+export {
+  compileFrameInstance,
+  compileFrameInstanceRenderable,
+  compileFrameInstanceStructural,
+  expandFrame,
+  getFrameById,
+  renderFrameInstanceMarkdown,
+} from "./frame/frame-helpers.js";
+export { resolveFrameSlots } from "./frame/resolve-slots.js";
+export {
+  buildLogicalSectionId,
+  buildLogicalSlotSentenceId,
+  createFrameInstanceKey,
+  generateDocumentNodeId,
+  generateFrameNodeId,
+  generateSectionNodeId,
+  generateSlotNodeId,
+} from "./frame/id-generator.js";
+export {
+  TechnicalArticleExplainerAuthor,
+  createTechnicalArticleExplainerInstance,
+  technicalArticleExplainerFrame,
+} from "./frames/technical-article-explainer-fluent.js";
+export {
+  TECHNICAL_ARTICLE_EXPLAINER_FRAME_ID,
+  technicalArticleExplainerFrameDefinition,
+} from "./frames/technical-article-explainer.js";
 export {
   createSemanticDocumentNode,
   defineDocumentSchema,
@@ -41,3 +70,16 @@ export type {
   SplitParagraphOperation,
   TextRequiredRule,
 } from "./types/domain.js";
+export type {
+  DocumentFrame,
+  FrameAuthoringState,
+  FrameCompileResult,
+  FrameDeviation,
+  FrameExpansionResult,
+  FrameInstance,
+  FrameLinkTemplate,
+  FrameSectionDefinition,
+  FrameSlotDefinition,
+  FrameSlotRequirement,
+  ResolvedFrameSlot,
+} from "./types/frame.js";

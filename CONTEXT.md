@@ -8,6 +8,22 @@ Docshape is a semantic document compiler for technical writing. It treats docume
 The typed intermediate representation of a technical document. It combines an ordered containment tree with schema-validated semantic links.
 _Avoid_: DocGraph, document graph (without "semantic")
 
+**DocumentFrame**:
+A high-level document construction model that provides default sections, slots, semantic links, and expansion rules for a document family.
+_Avoid_: template (when meaning only layout), preset (when meaning schema defaults only)
+
+**Frame Slot**:
+A named authoring position inside a DocumentFrame. A slot carries a role, section placement, slot requirement level, and fill or deviation state.
+_Avoid_: field, placeholder (when meaning prose-only)
+
+**FrameInstance**:
+A JSON-serializable filled or partially filled instance of a DocumentFrame.
+_Avoid_: draft, document object (when meaning rendered output)
+
+**Deviation**:
+An explicit, reasoned choice to omit a slot from the default DocumentFrame.
+_Avoid_: skip, delete (when meaning silent removal)
+
 **Tree**:
 The ordered containment structure that determines section, paragraph, and sentence nesting and render order.
 _Avoid_: hierarchy, outline (when meaning structural order)
@@ -17,7 +33,7 @@ A directed relationship from a source node to a target node, interpreted accordi
 _Avoid_: edge, reference (when meaning prose cross-reference)
 
 **Schema**:
-The role and link vocabulary plus constraints that a SemanticDocumentGraph must satisfy.
+The role and link vocabulary plus constraints that a SemanticDocumentGraph must satisfy. Schema validates structure; it does not provide default document layout.
 _Avoid_: template, document type (when meaning only layout)
 
 **Structural Compile**:
@@ -38,10 +54,10 @@ _Avoid_: fix plan, rewrite plan
 
 ## Example dialogue
 
-**Developer**: I built the skeleton first. The claim sentence has no text yet, but structural compile passes.
+**Developer**: I start from `technical_article.explainer`, fill problem and goal, then deviate from limitations with a reason.
 
-**Domain expert**: Good. Structural compile checks roles and links. Renderable compile should fail until the claim sentence has text.
+**Domain expert**: Good. The frame expands into a SemanticDocumentGraph. Deviations become info diagnoses, not silent omissions.
 
-**Developer**: The summary paragraph links to the method section with summarizes. Tree order decides Markdown output, not link order.
+**Developer**: Schema still validates roles and links after expansion. The frame only constructs the default shape.
 
-**Domain expert**: Correct. Semantic links express meaning. The tree expresses reading order.
+**Domain expert**: Correct. Frame constructs. Schema validates. SemanticDocumentGraph remains compiler IR beneath both.

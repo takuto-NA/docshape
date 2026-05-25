@@ -1,6 +1,6 @@
 # Library guide
 
-This guide describes what the docshape library can do in the current MVP release.
+This guide describes the compiler core and schema reference for docshape. For a feature overview, see [capabilities](guide/capabilities.md).
 
 ## Purpose
 
@@ -20,6 +20,8 @@ The MVP is LLM-independent. The graph is built in TypeScript, validated against 
 | Render Markdown from tree order | `renderMarkdown` | Semantic links do not affect output order |
 | Receive structured diagnostics | `CompileResult.diagnoses` | Stable codes, severities, node ids |
 | Get edit suggestions | `Diagnosis.suggestedOperations` | PatchPlan types only; no auto-apply |
+| Author through DocumentFrame | `technicalArticleExplainerFrame` | Default sections, slots, links, deviations |
+| Expand frame instances to graphs | `expandFrameInstance`, `compileFrameInstance` | Frame constructs; schema validates |
 
 ## Out of scope (MVP)
 
@@ -48,6 +50,22 @@ import {
   technicalArticleSchema,
 } from "docshape";
 ```
+
+## Authoring layers
+
+Normal authoring starts from DocumentFrame. The frame expands into SemanticDocumentGraph, then the existing compiler validates and renders the graph.
+
+```txt
+DocumentFrame + fills/deviations
+  ↓ expand
+SemanticDocumentGraph
+  ↓ compileStructural / compileRenderable
+Diagnosis
+  ↓ renderMarkdown
+Markdown
+```
+
+See [DocumentFrame authoring](guide/frame-authoring.md).
 
 ## Core workflow
 
@@ -133,13 +151,29 @@ Sentence-level constraints (`TECHNICAL_ARTICLE_DIAGNOSTIC_CODES`):
 
 Constant: `CORE_DIAGNOSTIC_CODES`
 
+## Frame diagnostic codes
+
+| Code | Meaning |
+|------|---------|
+| `FRAME-REQ-001` | Required slot has no fill text |
+| `FRAME-DEV-001` | Slot omitted with a recorded reason (info) |
+| `FRAME-FILL-001` | Unknown fill key for the frame |
+| `FRAME-DEV-002` | Unknown deviation slot id |
+| `FRAME-MISMATCH-001` | FrameInstance frameId does not match frame definition |
+| `FRAME-DEV-003` | Deviation reason is empty |
+
+Constant: `FRAME_DIAGNOSTIC_CODES`
+
 ## PatchPlan suggestions
 
 When a schema constraint fails, the compiler may attach suggested operations to the diagnosis: `insert_paragraph`, `add_link`, or `split_paragraph` (type only in MVP). Suggestions are not applied automatically.
 
-## Example
+## Examples
 
-See [complete workflow example](guide/example.md).
+- [High-level frame script](../examples/library-usage-frame.mjs)
+- [Low-level IR script](../examples/library-usage-article.mjs)
+- [DocumentFrame walkthrough](guide/frame-authoring.md)
+- [Low-level graph walkthrough](guide/example.md)
 
 ## Custom schemas
 
@@ -155,8 +189,4 @@ This runs typecheck, build, dist entrypoint smoke check, Vitest, and docguard. C
 
 Individual commands: `npm test`, `npm run typecheck`, `npm run build`, `npm run docs:check`, `uv run pytest`
 
-## Related documentation
-
-- [Complete workflow example](guide/example.md)
-- [Domain glossary](../CONTEXT.md)
-- [Architecture decisions](adr/)
+Return to the [documentation index](index.md).
