@@ -44,6 +44,22 @@ export function buildLibraryUsageArticleGraph() {
               ],
             }),
             createSemanticDocumentNode({
+              id: "paragraph-graph-definition",
+              layer: "paragraph",
+              role: "definition",
+              text: "",
+              links: [],
+              children: [
+                createSemanticDocumentNode({
+                  id: "sentence-graph-definition",
+                  layer: "sentence",
+                  role: "definition",
+                  text: "A SemanticDocumentGraph is a typed graph of sections, paragraphs, sentences, and semantic links used as compiler intermediate representation.",
+                  links: [],
+                }),
+              ],
+            }),
+            createSemanticDocumentNode({
               id: "paragraph-goal",
               layer: "paragraph",
               role: "goal",
@@ -56,6 +72,12 @@ export function buildLibraryUsageArticleGraph() {
                   role: "goal",
                   text: "Docshape lets authors define a SemanticDocumentGraph first, validate obligations, then render Markdown.",
                   links: [],
+                  semanticPayload: {
+                    solutionConcept: {
+                      kind: "reference",
+                      value: "sentence-graph-definition",
+                    },
+                  },
                 }),
               ],
             }),

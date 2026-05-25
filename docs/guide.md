@@ -118,7 +118,7 @@ Sentence nodes carry fine-grained meaning (`claim`, `evidence`, `reason`). Parag
 
 ### Structural compile
 
-`compileStructural(graph, schema)` checks unique ids, layer nesting, schema roles, schema link types, link targets, declarative constraints, Discourse Flow predicate constraints on `technicalArticleSchema`, and other optional predicate constraints. Text may be empty.
+`compileStructural(graph, schema)` checks unique ids, layer nesting, schema roles, schema link types, link targets, declarative constraints, Discourse Flow predicate constraints, Definition Flow predicate constraints on `technicalArticleSchema`, and other optional predicate constraints. Text may be empty.
 
 ### Renderable compile
 
@@ -152,7 +152,17 @@ Discourse Flow diagnostics (`TA-FLOW-*`) check that semantic links are available
 | `depends_on` | Dependency target subtree before design decision source | `TA-FLOW-002` |
 | `summarizes` | Summarized target subtree before summary source | `TA-FLOW-003` |
 
-Section targets are considered read only after their full subtree. Flow validation is graph-deterministic, not prose-style linting. Rules, examples, and scope: [Discourse Flow validation](guide/discourse-flow.md).
+Section targets are considered read only after their full subtree. Flow validation is graph-deterministic, not prose-style linting. Rules, examples, and scope: [Discourse Flow validation](guide/discourse-flow.md). Combined overview: [Structural reader validation](guide/structural-reader-validation.md).
+
+Definition Flow diagnostics (`TA-DEF-*`) check that semantic reference fields point to available definition nodes during structural compile:
+
+| Condition | Code |
+|-----------|------|
+| Referenced node id missing | `TA-DEF-001` |
+| Referenced node is not role `definition` | `TA-DEF-002` |
+| Definition subtree appears after use | `TA-DEF-003` |
+
+Expanded graph references use node ids. Frame default references may use `paragraphId::sentenceId` before expansion. Rules and scope: [Definition Flow validation](guide/definition-flow.md). Combined overview: [Structural reader validation](guide/structural-reader-validation.md).
 
 ## Core diagnostic codes
 
@@ -195,6 +205,7 @@ When a schema constraint fails, the compiler may attach suggested operations to 
 - [Low-level IR script](../examples/library-usage-article.mjs)
 - [DocumentFrame walkthrough](guide/frame-authoring.md)
 - [Discourse Flow validation](guide/discourse-flow.md)
+- [Definition Flow validation](guide/definition-flow.md)
 - [Low-level graph walkthrough](guide/example.md)
 
 ## Custom schemas

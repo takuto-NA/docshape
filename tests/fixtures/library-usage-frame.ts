@@ -56,6 +56,10 @@ export function buildLibraryUsageProseFills(): FrameInstance["proseFills"] {
       goalStatement:
         "Docshape lets authors define a SemanticDocumentGraph first, validate obligations, then render Markdown.",
     },
+    introductionGraphDefinition: {
+      definitionStatement:
+        "A SemanticDocumentGraph is a typed graph of sections, paragraphs, sentences, and semantic links used as compiler intermediate representation.",
+    },
     workflowBackground: {
       workflowStatement:
         "The recommended flow is bottom-up: define the tree, attach semantic links, compile structurally, fill sentence text, then compile for rendering.",

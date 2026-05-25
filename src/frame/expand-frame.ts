@@ -51,6 +51,7 @@ export function expandFrameInstance(
     instanceKey,
     includedParagraphPatterns,
     idOverrides,
+    sentenceReferenceIdLookup,
   );
   const documentNode = createSemanticDocumentNode({
     id: resolveNodeId(
@@ -129,6 +130,7 @@ function buildSectionNodes(
   instanceKey: string,
   includedParagraphPatterns: ResolvedParagraphPattern[],
   idOverrides: Record<string, string>,
+  sentenceReferenceIdLookup: Map<string, string>,
 ): SemanticDocumentNode[] {
   const paragraphPatternsBySectionId = groupParagraphPatternsBySection(includedParagraphPatterns);
 
@@ -159,6 +161,7 @@ function buildSectionNodes(
             instanceKey,
             resolvedParagraphPattern,
             idOverrides,
+            sentenceReferenceIdLookup,
           ),
         ),
       });
@@ -186,6 +189,7 @@ function buildParagraphNode(
   instanceKey: string,
   resolvedParagraphPattern: ResolvedParagraphPattern,
   idOverrides: Record<string, string>,
+  sentenceReferenceIdLookup: Map<string, string>,
 ): SemanticDocumentNode {
   const paragraphId = resolvedParagraphPattern.patternDefinition.paragraphId;
   const paragraphLogicalId = generateParagraphNodeId(frameId, instanceKey, paragraphId);
@@ -208,6 +212,7 @@ function buildParagraphNode(
         sentencePattern,
         resolvedParagraphPattern,
         idOverrides,
+        sentenceReferenceIdLookup,
       ),
     ),
   });
@@ -220,6 +225,7 @@ function buildSentenceNode(
   sentencePattern: SentencePattern,
   resolvedParagraphPattern: ResolvedParagraphPattern,
   idOverrides: Record<string, string>,
+  sentenceReferenceIdLookup: Map<string, string>,
 ): SemanticDocumentNode {
   const sentenceLogicalId = generateSentenceNodeId(
     frameId,
@@ -238,6 +244,7 @@ function buildSentenceNode(
     semanticPayload: buildSentenceSemanticPayload(
       sentencePattern,
       resolvedParagraphPattern.semanticFill,
+      sentenceReferenceIdLookup,
     ),
     links: [],
   });
@@ -246,6 +253,7 @@ function buildSentenceNode(
 function buildSentenceSemanticPayload(
   sentencePattern: SentencePattern,
   semanticFill: Record<string, SemanticValue>,
+  sentenceReferenceIdLookup: Map<string, string>,
 ): Record<string, SemanticValue> {
   const sentenceSemanticPayload: Record<string, SemanticValue> = {};
 
@@ -256,10 +264,37 @@ function buildSentenceSemanticPayload(
       continue;
     }
 
-    sentenceSemanticPayload[semanticFieldId] = semanticValue;
+    sentenceSemanticPayload[semanticFieldId] = resolveFrameLocalReferenceValue(
+      semanticValue,
+      sentenceReferenceIdLookup,
+    );
   }
 
   return sentenceSemanticPayload;
+}
+
+function resolveFrameLocalReferenceValue(
+  semanticValue: SemanticValue,
+  sentenceReferenceIdLookup: Map<string, string>,
+): SemanticValue {
+  if (semanticValue.kind !== "reference") {
+    return semanticValue;
+  }
+
+  if (!semanticValue.value.includes("::")) {
+    return semanticValue;
+  }
+
+  const resolvedNodeId = sentenceReferenceIdLookup.get(semanticValue.value);
+
+  if (resolvedNodeId === undefined) {
+    return semanticValue;
+  }
+
+  return {
+    kind: "reference",
+    value: resolvedNodeId,
+  };
 }
 
 function attachLinkTemplates(

@@ -40,11 +40,23 @@ Validation that a SemanticDocumentGraph can be rendered as a document. Required 
 
 _Avoid_: publish check, final review
 
+**Structural reader validation**:
+
+Compile-time checking that a graph is understandable in tree reading order before prose is finalized. Combines link-existence rules, Discourse Flow, and Definition Flow during structural compile. See [Structural reader validation](docs/guide/structural-reader-validation.md).
+
+_Avoid_: prose linting, readability score, NLP term detection
+
 **Discourse Flow**:
 
 The reader-facing order implied by the tree, checked against semantic links during structural compile. See [Discourse Flow validation](docs/guide/discourse-flow.md).
 
 _Avoid_: prose style, narrative polish, readability score
+
+**Definition Flow**:
+
+The reader-facing availability of concepts referenced in semantic payloads, checked during structural compile. See [Definition Flow validation](docs/guide/definition-flow.md).
+
+_Avoid_: readability score, unknown-term NLP linting, prose-style linting
 
 **Diagnosis**:
 

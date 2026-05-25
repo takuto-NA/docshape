@@ -53,6 +53,10 @@ article = article
     problemStatement:
       "Technical articles written directly as prose are hard to validate for missing support, unclear roles, or broken structure.",
   })
+  .fillProse("introductionGraphDefinition", {
+    definitionStatement:
+      "A SemanticDocumentGraph is a typed graph of sections, paragraphs, sentences, and semantic links used as compiler intermediate representation.",
+  })
   .fillProse("introductionGoal", {
     goalStatement:
       "Docshape lets authors define a SemanticDocumentGraph first, validate obligations, then render Markdown.",

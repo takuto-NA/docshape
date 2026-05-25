@@ -22,7 +22,7 @@ export interface ReadingSpan {
 
 const readingSpanLookupCache = new WeakMap<SemanticDocumentGraph, Map<string, ReadingSpan>>();
 
-function getReadingSpanLookup(graph: SemanticDocumentGraph): Map<string, ReadingSpan> {
+export function getReadingSpanLookup(graph: SemanticDocumentGraph): Map<string, ReadingSpan> {
   const cachedReadingSpanLookup = readingSpanLookupCache.get(graph);
 
   if (cachedReadingSpanLookup !== undefined) {

@@ -64,6 +64,10 @@ frameAuthor = frameAuthor
   .fillProse("introductionProblem", {
     problemStatement: "Problem text.",
   })
+  .fillProse("introductionGraphDefinition", {
+    definitionStatement:
+      "A SemanticDocumentGraph is a typed graph of sections, paragraphs, sentences, and semantic links used as compiler intermediate representation.",
+  })
   .fillProse("introductionGoal", {
     goalStatement: "Goal text.",
   })

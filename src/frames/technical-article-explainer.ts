@@ -52,11 +52,52 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
       ],
     },
     {
+      paragraphId: "introductionGraphDefinition",
+      sectionId: "introduction",
+      requirement: "required",
+      paragraphRole: "definition",
+      semanticFields: [
+        {
+          fieldId: "term",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: { kind: "text", value: "SemanticDocumentGraph" },
+        },
+        {
+          fieldId: "meaning",
+          valueKind: "text",
+          requirement: "required",
+          defaultValue: {
+            kind: "text",
+            value:
+              "A typed graph of sections, paragraphs, sentences, and semantic links used as compiler intermediate representation.",
+          },
+        },
+      ],
+      sentences: [
+        {
+          sentenceId: "definitionStatement",
+          role: "definition",
+          requiredSemanticFieldIds: ["term", "meaning"],
+          proseRequirement: "required",
+        },
+      ],
+    },
+    {
       paragraphId: "introductionGoal",
       sectionId: "introduction",
       requirement: "required",
       paragraphRole: "goal",
       semanticFields: [
+        {
+          fieldId: "solutionConcept",
+          valueKind: "reference",
+          requirement: "required",
+          defaultValue: {
+            kind: "reference",
+            value: "introductionGraphDefinition::definitionStatement",
+          },
+        },
         { fieldId: "solution", valueKind: "text", requirement: "required" },
         { fieldId: "outcome", valueKind: "text", requirement: "required" },
       ],
@@ -64,7 +105,7 @@ export const technicalArticleExplainerFrameDefinition: DocumentFrame = {
         {
           sentenceId: "goalStatement",
           role: "goal",
-          requiredSemanticFieldIds: ["solution", "outcome"],
+          requiredSemanticFieldIds: ["solutionConcept", "solution", "outcome"],
           proseRequirement: "required",
         },
       ],

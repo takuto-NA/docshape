@@ -20,17 +20,22 @@ Default sections:
 Author-facing paragraph patterns include:
 
 - `introductionProblem` (required)
-- `introductionGoal` (required)
+- `introductionGraphDefinition` (required, default semantic values)
+- `introductionGoal` (required, default concept reference to graph definition)
 - `workflowBackground` (required)
 - `workflowExample` (required, three sentence patterns)
 - `summarySummary` (required)
 - `summaryLimitations` (recommended, omit with `deviate`)
 
-Default semantic values are provided for design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints and [Discourse Flow](discourse-flow.md) reading order.
+Default semantic values are provided for graph definition, design decision, workflow constraint, claim, and compile-mode reasons. Default links satisfy `technicalArticleSchema` constraints and [Discourse Flow](discourse-flow.md) reading order.
 
 ## Reading order and Discourse Flow
 
 Paragraph patterns expand into a tree. Semantic links must agree with that reading order during structural compile. In the built-in frame, constraints and reasons appear before the decisions and claims they support. When authoring custom paragraph order or low-level graphs, follow [Discourse Flow validation](discourse-flow.md).
+
+## Concept references and Definition Flow
+
+Semantic reference fields (`kind: "reference"`) must point to definition nodes that appear earlier in the tree. The built-in frame defines `SemanticDocumentGraph` in `introductionGraphDefinition` before `introductionGoal` references it. Frame default references may use `paragraphId::sentenceId`; expansion resolves them to node ids. See [Definition Flow validation](definition-flow.md).
 
 ## Sentence patterns and semantic payload
 

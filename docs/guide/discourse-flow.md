@@ -144,6 +144,7 @@ These boundaries keep validation graph-deterministic and schema-owned.
 
 ## Related documentation
 
+- [Structural reader validation](structural-reader-validation.md)
 - [Capabilities — Discourse Flow](capabilities.md#validate-discourse-flow-during-structural-compile)
 - [Library guide — technical_article schema](../guide.md#built-in-schema-technical_article)
 - [DocumentFrame authoring](frame-authoring.md#reading-order-and-discourse-flow)

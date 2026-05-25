@@ -8,7 +8,9 @@ This page is the root for repository documentation.
 - [Capabilities overview](guide/capabilities.md)
 - [Library guide](guide.md)
 - [DocumentFrame authoring](guide/frame-authoring.md)
+- [Structural reader validation](guide/structural-reader-validation.md)
 - [Discourse Flow validation](guide/discourse-flow.md)
+- [Definition Flow validation](guide/definition-flow.md)
 - [Low-level graph example](guide/example.md)
 - [Domain glossary](../CONTEXT.md)
 
@@ -20,6 +22,7 @@ This page is the root for repository documentation.
 - [0004 DocumentFrame above SemanticDocumentGraph](adr/0004-document-frame-above-semantic-document-graph.md)
 - [0005 Semantic-first SentencePattern frames](adr/0005-semantic-first-sentence-patterns.md)
 - [0006 Discourse Flow validation](adr/0006-discourse-flow-validation.md)
+- [0007 Definition Flow validation](adr/0007-definition-flow-validation.md)
 
 ## Document rules
 
