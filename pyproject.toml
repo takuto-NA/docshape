@@ -1,0 +1,55 @@
+[project]
+name = "docshape-documentation-checks"
+version = "0.1.0"
+description = "Documentation guard configuration for the docshape repository."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "docguard @ git+https://github.com/takuto-NA/docguard.git",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.docguard]
+paths = ["README.md", "CONTEXT.md", "docs"]
+ignore_globs = ["docs/archive/**", "docs/generated/**"]
+max_document_lines = 300
+max_section_lines = 80
+index_files = ["README.md", "docs/index.md"]
+require_index_reachability = true
+require_orphan_detection = true
+require_hub_outgoing_links = true
+require_mixed_role_detection = true
+require_heading_order_check = true
+require_duplicate_guidance_detection = true
+duplicate_guidance_kinds = ["code_block", "list_item", "paragraph"]
+allowed_duplicate_patterns = []
+max_strong_emphasis_pairs = 0
+allowed_prose_phrases = []
+extra_prohibited_prose_patterns = []
+hub_globs = []
+
+[[tool.docguard.document_types]]
+name = "adr"
+glob = "docs/adr/*.md"
+required_headings = ["Status", "Context", "Decision", "Consequences"]
+required_front_matter_keys = ["status", "date"]
+max_document_lines = 120
+max_section_lines = 40
+
+[tool.docguard.severity]
+DG-SIZE001 = "error"
+DG-SIZE002 = "error"
+DG-FORMAT001 = "error"
+DG-FORMAT002 = "error"
+DG-FORMAT003 = "error"
+DG-ORG001 = "error"
+DG-ORG002 = "error"
+DG-ORG003 = "error"
+DG-SPLIT001 = "error"
+DG-SPLIT002 = "error"
+DG-STYLE001 = "error"
+DG-STYLE002 = "error"
